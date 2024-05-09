@@ -2,3 +2,4 @@
 node_modules
 temp-files
 bun.lockb
+package-lock.json

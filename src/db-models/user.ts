@@ -33,6 +33,10 @@ const userModel = new mongoose.Schema({
   posts: {
     type: [{}]
   },
+  isVerified: {
+    type: Boolean
+  },
+  
 })
 
 export default mongoose.model('User', userModel);

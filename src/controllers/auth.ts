@@ -1,13 +1,14 @@
 import type { Request, Response } from "express"
-import { login } from "../services/auth"
+import { login, signup } from "../services/auth"
 import { clientHost } from "../config";
+import { verifyClientPayload } from "../libs/zod";
 
 enum QUERY_TYPE {
   LOGIN = 'login',
   SIGN_UP = 'signup'
 }
 
-type UserPayload = {
+export type UserPayload = {
   email: string;
   password: string;
   username?: string;
@@ -37,6 +38,13 @@ async function handleAuth (req: Request, res: Response) {
     isCorrectQuery
   })
 
+  const {ok, error} = verifyClientPayload(userPayload, { action: queryType })
+
+  if (!ok) return res.status(400).json({
+    message: 'You must provide a correct data format.',
+    error
+  })
+
   const {
     email,
     password
@@ -57,8 +65,16 @@ async function handleAuth (req: Request, res: Response) {
 
     }
 
+    // SI EL USUARIO QUIERE CREARSE UNA CUENTA
+    if (queryType.toString() === QUERY_TYPE.SIGN_UP) {
+      const signUpResponse = await signup({ payload: req.body, avatar: req.files })
 
-    if (queryType.toString() === QUERY_TYPE.SIGN_UP) {}
+      if (signUpResponse.status > 299) return res.status(signUpResponse.status).json({ message: signUpResponse.message, error: signUpResponse?.error })
+
+      res.cookie(COOKIE_NAME, signUpResponse.data, COOKIE_CONFIG)
+
+      return res.json({ message: signUpResponse.message })
+    }
     
   }
   catch (error) {
