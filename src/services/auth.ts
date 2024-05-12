@@ -6,7 +6,7 @@ import { UserPayload } from "../controllers/auth";
 import { uploadFile } from "../libs/cloudinary";
 
 
-export const DEFAULT_AVATAR = "";
+export const DEFAULT_AVATAR = "https://res.cloudinary.com/dzmuriaby/image/upload/v1701369252/avatares/ucqpxvyuji2z0gqwbwg9.png";
 
 type AuthFnResponse = {
   status: number;

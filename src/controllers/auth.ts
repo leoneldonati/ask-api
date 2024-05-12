@@ -2,6 +2,7 @@ import type { Request, Response } from "express"
 import { login, signup } from "../services/auth"
 import { clientHost } from "../config";
 import { verifyClientPayload } from "../libs/zod";
+import ms from "ms";
 
 enum QUERY_TYPE {
   LOGIN = 'login',
@@ -17,7 +18,7 @@ export type UserPayload = {
   date?: Date;
 }
 
-const HALF_HOUR = new Date(Date.now() * 18000)
+const HALF_HOUR = new Date(Date.now() + ms('30m'))
 
 const COOKIE_NAME = 'token-session'
 const COOKIE_CONFIG =  {

@@ -36,7 +36,10 @@ const userModel = new mongoose.Schema({
   isVerified: {
     type: Boolean
   },
-  
+},
+{
+  versionKey: false,
+  timestamps: true,
 })
 
 export default mongoose.model('User', userModel);
