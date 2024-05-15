@@ -1,6 +1,7 @@
 import express from 'express'
 import fileUpload from 'express-fileupload'
 import cors from 'cors'
+import morgan from 'morgan'
 import { authRoutes } from './routes/auth'
 import { clientHost } from './config'
 
@@ -10,6 +11,8 @@ app.disable('x-powered-by')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.use(morgan('dev'))
 
 app.use(cors({
   origin: clientHost,

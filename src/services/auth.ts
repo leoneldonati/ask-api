@@ -13,6 +13,7 @@ type AuthFnResponse = {
   message: string;
   error?: any;
   data?: any;
+  token?: string;
 };
 
 type LoginFn = ({
@@ -50,7 +51,8 @@ const login: LoginFn = async ({ email, password }) => {
     return {
       status: 200,
       message: "Login succefully.",
-      data: token as string,
+      data: user,
+      token
     };
   } catch (error) {
     return {
@@ -96,7 +98,7 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
       posts: [],
       isVerified: false,
       hash,
-      avatar: uploadedFile,
+      avatar: uploadedFile ?? {secureUrl: DEFAULT_AVATAR},
     });
 
     const userSaved = await newUser.save()
@@ -107,7 +109,7 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
     return {
       status: 200,
       message: "Good! You have created an account succefully!",
-      data: token,
+      data: token as string,
     };
   } catch (e) {
     return {

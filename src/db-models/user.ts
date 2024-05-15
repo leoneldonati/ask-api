@@ -36,6 +36,12 @@ const userModel = new mongoose.Schema({
   isVerified: {
     type: Boolean
   },
+  avatar: {
+    type: {
+      secureUrl: String,
+      publicId: String || undefined
+    }
+  }
 },
 {
   versionKey: false,

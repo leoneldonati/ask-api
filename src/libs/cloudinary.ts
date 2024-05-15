@@ -8,7 +8,7 @@ import { DEFAULT_AVATAR } from "../services/auth";
 type UploadFileFn = (
   avatar: FileArray,
   { folder }: { folder: string }
-) => Promise<{ ok: boolean; error?: any; uploadedFile?: any }>;
+) => Promise<{ ok: boolean; error?: any; uploadedFile: { secureUrl: string; publicId?:string } }>;
 
 const uploadFile: UploadFileFn = async (avatar, { folder }) => {
 

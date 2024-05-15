@@ -1,0 +1,28 @@
+import mongoose from "mongoose";
+
+const postModel = new mongoose.Schema({
+  content: String,
+  images: {
+    type: Array || null
+  },
+  title: {
+    type: String,
+    trim: true
+  },
+  likes: {
+    type: Array<String>
+  },
+  comments: {
+    type: Array
+  },
+  owner: {
+    ref: 'User',
+  }
+},
+{
+  timestamps: true,
+  versionKey: false
+}
+)
+
+export default mongoose.model('Post', postModel)
