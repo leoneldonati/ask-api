@@ -1,4 +1,4 @@
-import { date, object, string, any } from "zod";
+import { date, object, string, any, array } from "zod";
 
 const payloadObject = object({
   password: string(),
@@ -45,4 +45,28 @@ const verifyClientPayload: VerifyPayloadFn = (payload, { action }) => {
   }
 };
 
-export { verifyClientPayload };
+const postPayload = object({
+  title: string(),
+  content: string(),
+  images: array(object({})).optional(),
+})
+
+type VerifyPostFn = (payload: {title: string; content: string; images?: File[] | null}) => {ok: boolean; error: any | null;}
+const verifyPostPayload: VerifyPostFn = (payload) => {
+  try {
+    const parsedPayload = postPayload.parse(payload)
+
+    return {
+      ok: true,
+      error: null
+    }
+  }
+  catch(err: any){
+    return {
+      ok: false,
+      error: err.issues
+    }
+  }
+}
+
+export { verifyClientPayload, verifyPostPayload };

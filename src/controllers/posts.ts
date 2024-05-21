@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import Post from '../db-models/post'
+import { verifyPostPayload } from "../libs/zod";
+import type { ExtendedReq } from "../types";
 
 async function getPosts (req: Request, res: Response) {
   const q = req.query?.q
@@ -12,7 +14,6 @@ async function getPosts (req: Request, res: Response) {
 
   try {
     const posts = await Post.find().limit(Number(q))
-
     return res.json(posts)
   }
   catch (e) {
@@ -23,7 +24,41 @@ async function getPosts (req: Request, res: Response) {
   }
 }
 
+type PostPayload = {
+  title: string;
+  content: string;
+  images: File[] | null;
+
+}
+
+async function addPost (req: ExtendedReq, res: Response) {
+  const postPayload = req.body as PostPayload
+  const {ok, error} = verifyPostPayload(postPayload)
+
+  if (!ok) return res.status(404).json({
+    message: 'Wrong post format!',
+    error
+  })
+  try {
+    const newPost = new Post({
+      title: postPayload.title,
+      content: postPayload.content,
+      images: [],
+      comments: [],
+      likes: [],
+      owner: req.user
+    })
+
+    const postSaved = await newPost.save()
+
+    res.json(postSaved)
+  }
+  catch (err) {
+    res.status(500).json({ err })
+  }
+}
 
 export {
-  getPosts
+  getPosts,
+  addPost
 }

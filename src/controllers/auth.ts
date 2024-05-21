@@ -21,13 +21,8 @@ export type UserPayload = {
 
 const HALF_HOUR = new Date(Date.now() + ms('30m'))
 
-const COOKIE_NAME = 'token-session'
-const COOKIE_CONFIG =  {
-  domain: clientHost,
-  expires: HALF_HOUR,
-  //httpOnly: true,
-  //secure: true
-}
+const COOKIE_NAME = 'session'
+
 
 async function handleAuth (req: Request, res: Response) {
   const queryType = req.query?.type
@@ -61,7 +56,13 @@ async function handleAuth (req: Request, res: Response) {
 
       if (loginResponse.status > 299) return res.status(loginResponse.status).json({ message: loginResponse.message, error: loginResponse?.error })
 
-      res.cookie(COOKIE_NAME, loginResponse.token, COOKIE_CONFIG)
+      res.cookie(COOKIE_NAME, loginResponse.token?.toString(), {
+        domain: clientHost,
+        expires: HALF_HOUR,
+        httpOnly: false,
+        secure: false,
+        sameSite: 'none'
+      })
 
       return res.json({ message: loginResponse.message, user: loginResponse.data })
 
@@ -73,7 +74,13 @@ async function handleAuth (req: Request, res: Response) {
 
       if (signUpResponse.status > 299) return res.status(signUpResponse.status).json({ message: signUpResponse.message, error: signUpResponse?.error })
 
-      res.cookie(COOKIE_NAME, signUpResponse.token, COOKIE_CONFIG)
+      res.cookie(COOKIE_NAME, signUpResponse.token?.toString(), {
+        domain: clientHost,
+        expires: HALF_HOUR,
+        httpOnly: false,
+        secure: false,
+        sameSite: 'none'
+      })
 
       return res.json({ message: signUpResponse.message })
     }

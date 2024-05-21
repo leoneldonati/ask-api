@@ -16,7 +16,8 @@ const postModel = new mongoose.Schema({
     type: Array
   },
   owner: {
-    ref: 'User',
+    type: Object,
+    ref: 'User'
   }
 },
 {
