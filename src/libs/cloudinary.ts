@@ -3,6 +3,15 @@ import {
   v2 as cld
 } from 'cloudinary'
 import { DEFAULT_AVATAR } from "../services/auth";
+import { cldKey, cldName, cldSecret } from "../config";
+
+
+cld.config({
+  api_key: cldKey,
+  cloud_name: cldName,
+  api_secret: cldSecret,
+  secure: true  
+})
 
 
 type UploadFileFn = (

@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 const postModel = new mongoose.Schema({
-  content: String,
+  content: {
+    type: String
+  },
   images: {
     type: Array || null
   },

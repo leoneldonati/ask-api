@@ -12,6 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadFile = void 0;
 const cloudinary_1 = require("cloudinary");
 const auth_1 = require("../services/auth");
+const config_1 = require("../config");
+cloudinary_1.v2.config({
+    api_key: config_1.cldKey,
+    cloud_name: config_1.cldName,
+    api_secret: config_1.cldSecret,
+    secure: true
+});
 const uploadFile = (avatar_1, _a) => __awaiter(void 0, [avatar_1, _a], void 0, function* (avatar, { folder }) {
     if (!avatar)
         return {

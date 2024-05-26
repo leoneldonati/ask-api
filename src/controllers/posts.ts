@@ -39,15 +39,16 @@ async function addPost (req: ExtendedReq, res: Response) {
     message: 'Wrong post format!',
     error
   })
+
+  const newPost = new Post({
+    title: postPayload.title,
+    content: postPayload.content,
+    images: [{}],
+    comments: [],
+    likes: [],
+    owner: req.user
+  })
   try {
-    const newPost = new Post({
-      title: postPayload.title,
-      content: postPayload.content,
-      images: [],
-      comments: [],
-      likes: [],
-      owner: req.user
-    })
 
     const postSaved = await newPost.save()
 

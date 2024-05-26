@@ -34,7 +34,7 @@ exports.verifyClientPayload = verifyClientPayload;
 const postPayload = (0, zod_1.object)({
     title: (0, zod_1.string)(),
     content: (0, zod_1.string)(),
-    images: (0, zod_1.array)((0, zod_1.object)({})).optional(),
+    images: (0, zod_1.array)((0, zod_1.object)({})).nullable(),
 });
 const verifyPostPayload = (payload) => {
     try {

@@ -1,12 +1,12 @@
-import type { Request, Response } from "express"
-import { login, signup } from "../services/auth"
-import { clientHost } from "../config";
+import type { Request, Response } from "express";
+import { login, signup } from "../services/auth";
 import { verifyClientPayload } from "../libs/zod";
 import ms from "ms";
 
 enum QUERY_TYPE {
-  LOGIN = 'login',
-  SIGN_UP = 'signup'
+  LOGIN = "login",
+  LOGOUT = "logout",
+  SIGN_UP = "signup",
 }
 
 export type UserPayload = {
@@ -17,83 +17,94 @@ export type UserPayload = {
   bio?: string;
   date?: Date;
   avatar: any;
-}
+};
 
-const HALF_HOUR = new Date(Date.now() + ms('30m'))
+const HALF_HOUR = new Date(Date.now() + ms("30m"));
 
-const COOKIE_NAME = 'session'
+const COOKIE_NAME = "session";
+const COOKIE_CONFIG = {
+  expires: HALF_HOUR,
+  httpOnly: false,
+  secure: false,
+};
 
+async function handleAuth(req: Request, res: Response) {
+  const queryType = req.query?.type;
+  const userPayload = req.body as UserPayload;
 
-async function handleAuth (req: Request, res: Response) {
-  const queryType = req.query?.type
-  const userPayload = req.body as UserPayload
+  const isCorrectQuery =
+    (queryType && queryType !== "" && queryType === QUERY_TYPE.LOGIN) ||
+    queryType === QUERY_TYPE.SIGN_UP || queryType === QUERY_TYPE.LOGOUT;
 
-  const isCorrectQuery = queryType && queryType !== '' && queryType === QUERY_TYPE.LOGIN || queryType === QUERY_TYPE.SIGN_UP
+  if (!isCorrectQuery)
+    return res.status(400).json({
+      message: "This query is wrong, please provide a correct type of query.",
+      isCorrectQuery,
+    });
 
-  if (!isCorrectQuery) return res.status(400).json({
-    message: 'This query is wrong, please provide a correct type of query.',
-    isCorrectQuery
-  })
+  const { ok, error } = verifyClientPayload(
+    {
+      ...userPayload,
+      date: userPayload.date ? new Date(userPayload.date!) : undefined,
+    },
+    { action: queryType }
+  );
 
-  const {ok, error} = verifyClientPayload({...userPayload, date: userPayload.date ? new Date(userPayload.date!) : undefined }, { action: queryType })
+  if (!ok)
+    return res.status(400).json({
+      message: "You must provide a correct data format.",
+      error,
+    });
 
-  if (!ok) return res.status(400).json({
-    message: 'You must provide a correct data format.',
-    error
-  })
-
-  const {
-    email,
-    password
-  } = userPayload
+  const { email, password } = userPayload;
   try {
-
-
     // SI EL USUARIO QUIERE LOGUEARSE
     if (queryType.toString() === QUERY_TYPE.LOGIN) {
+      const loginResponse = await login({ email, password });
 
-      const loginResponse = await login({ email, password })
+      if (loginResponse.status > 299)
+        return res.status(loginResponse.status).json({
+          message: loginResponse.message,
+          error: loginResponse?.error,
+        });
 
-      if (loginResponse.status > 299) return res.status(loginResponse.status).json({ message: loginResponse.message, error: loginResponse?.error })
+      res
+        .cookie(COOKIE_NAME, loginResponse.token?.toString(), COOKIE_CONFIG)
+        .json({ message: loginResponse.message, user: loginResponse.data });
 
-      res.cookie(COOKIE_NAME, loginResponse.token?.toString(), {
-        domain: clientHost,
-        expires: HALF_HOUR,
-        httpOnly: false,
-        secure: false,
-        sameSite: 'none'
-      })
-
-      return res.json({ message: loginResponse.message, user: loginResponse.data })
-
+      return;
     }
 
     // SI EL USUARIO QUIERE CREARSE UNA CUENTA
     if (queryType.toString() === QUERY_TYPE.SIGN_UP) {
-      const signUpResponse = await signup({ payload: {...userPayload, date: new Date(userPayload.date!)}, avatar: req.files })
+      const signUpResponse = await signup({
+        payload: { ...userPayload, date: new Date(userPayload.date!) },
+        avatar: req.files,
+      });
 
-      if (signUpResponse.status > 299) return res.status(signUpResponse.status).json({ message: signUpResponse.message, error: signUpResponse?.error })
+      if (signUpResponse.status > 299)
+        return res.status(signUpResponse.status).json({
+          message: signUpResponse.message,
+          error: signUpResponse?.error,
+        });
 
-      res.cookie(COOKIE_NAME, signUpResponse.token?.toString(), {
-        domain: clientHost,
-        expires: HALF_HOUR,
-        httpOnly: false,
-        secure: false,
-        sameSite: 'none'
-      })
-
-      return res.json({ message: signUpResponse.message })
+      res
+        .cookie(COOKIE_NAME, signUpResponse.token?.toString(), COOKIE_CONFIG)
+        .json({ message: signUpResponse.message });
     }
-    
-  }
-  catch (error) {
+  } catch (error) {
     return res.status(500).json({
-      message: 'Error on server, please look.',
-      error
-    })
+      message: "Error on server, please look.",
+      error,
+    });
   }
 }
 
-export {
-  handleAuth
+async function closeSession (req: Request, res: Response) {
+  res.cookie(COOKIE_NAME, '', {...COOKIE_CONFIG, expires: new Date(0)})
 }
+
+async function checkSession (req: Request, res: Response) {
+  res.json('Session alive!')
+}
+export { handleAuth, closeSession, checkSession };

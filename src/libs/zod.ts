@@ -21,7 +21,7 @@ type Payload = {
 };
 type VerifyPayloadFn = (
   payload: Payload,
-  { action }: { action: "login" | "signup" }
+  { action }: { action: "login" | "signup" | string }
 ) => { ok: boolean; error: any | null };
 
 const verifyClientPayload: VerifyPayloadFn = (payload, { action }) => {
@@ -48,7 +48,7 @@ const verifyClientPayload: VerifyPayloadFn = (payload, { action }) => {
 const postPayload = object({
   title: string(),
   content: string(),
-  images: array(object({})).optional(),
+  images: array(object({})).nullable(),
 })
 
 type VerifyPostFn = (payload: {title: string; content: string; images?: File[] | null}) => {ok: boolean; error: any | null;}

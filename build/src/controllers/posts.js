@@ -46,15 +46,15 @@ function addPost(req, res) {
                 message: 'Wrong post format!',
                 error
             });
+        const newPost = new post_1.default({
+            title: postPayload.title,
+            content: postPayload.content,
+            images: [{}],
+            comments: [],
+            likes: [],
+            owner: req.user
+        });
         try {
-            const newPost = new post_1.default({
-                title: postPayload.title,
-                content: postPayload.content,
-                images: [],
-                comments: [],
-                likes: [],
-                owner: req.user
-            });
             const postSaved = yield newPost.save();
             res.json(postSaved);
         }
