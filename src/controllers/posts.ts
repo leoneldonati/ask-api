@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import Post from '../db-models/post'
 import { verifyPostPayload } from "../libs/zod";
 import type { ExtendedReq } from "../types";
+import { db } from "../db";
 
 async function getPosts (req: Request, res: Response) {
   const q = req.query?.q
@@ -13,8 +14,14 @@ async function getPosts (req: Request, res: Response) {
   })
 
   try {
-    const posts = await Post.find().limit(Number(q))
-    return res.json(posts)
+    const result = await db.execute({
+      sql: 'SELECT * FROM posts LIMIT $q',
+      args: {
+        q: Number(q) ?? 15
+      }
+    })
+    console.log(result.rows)
+    return res.json(result.rows)
   }
   catch (e) {
     return res.status(500).json({
@@ -40,21 +47,22 @@ async function addPost (req: ExtendedReq, res: Response) {
     error
   })
 
-  const newPost = new Post({
-    title: postPayload.title,
-    content: postPayload.content,
-    images: [{}],
-    comments: [],
-    likes: [],
-    owner: req.user
-  })
+  
   try {
-
-    const postSaved = await newPost.save()
-
-    res.json(postSaved)
+    const result = await db.execute({
+      sql: 'INSERT INTO posts (id, userid, content, date) VALUES ($id, $userid, $content, $date)',
+      args: {
+        id: crypto.randomUUID(),
+        userid: req.user.id,
+        content: postPayload.content,
+        date: new Date()
+      }
+  })
+  
+    res.json(result.rows[0])
   }
   catch (err) {
+    console.error(err)
     res.status(500).json({ err })
   }
 }

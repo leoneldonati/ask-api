@@ -46,12 +46,11 @@ const verifyClientPayload: VerifyPayloadFn = (payload, { action }) => {
 };
 
 const postPayload = object({
-  title: string(),
   content: string(),
   images: array(object({})).nullable(),
 })
 
-type VerifyPostFn = (payload: {title: string; content: string; images?: File[] | null}) => {ok: boolean; error: any | null;}
+type VerifyPostFn = (payload: { content: string; images?: File[] | null}) => {ok: boolean; error: any | null;}
 const verifyPostPayload: VerifyPostFn = (payload) => {
   try {
     const parsedPayload = postPayload.parse(payload)
