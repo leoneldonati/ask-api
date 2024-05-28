@@ -8,7 +8,12 @@ import { clientHost, clientHostProduction } from './config'
 import { postsRouter } from './routes/posts'
 import { usersRouter } from './routes/users'
 
+
+
 export const app = express()
+
+
+
 
 app.disable('x-powered-by')
 

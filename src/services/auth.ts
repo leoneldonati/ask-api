@@ -4,9 +4,10 @@ import { compare, encrypt } from "../libs/bcrypt";
 import { signToken } from "../libs/jwt";
 import { UserPayload } from "../controllers/auth";
 import { uploadFile } from "../libs/cloudinary";
+import { db } from "../db";
 
-
-export const DEFAULT_AVATAR = "https://res.cloudinary.com/dzmuriaby/image/upload/v1701369252/avatares/ucqpxvyuji2z0gqwbwg9.png";
+export const DEFAULT_AVATAR =
+  "https://res.cloudinary.com/dzmuriaby/image/upload/v1701369252/avatares/ucqpxvyuji2z0gqwbwg9.png";
 
 type AuthFnResponse = {
   status: number;
@@ -24,20 +25,26 @@ type LoginFn = ({
   password: string;
 }) => Promise<AuthFnResponse>;
 
-
 const login: LoginFn = async ({ email, password }) => {
   // TODO: implementar funcion para parsear el payload del cliente
   try {
-    const user = await User.findOne({ email });
-
-    if (!user)
+    const result = await db.execute({
+      sql: "SELECT * FROM users WHERE email = $email",
+      args: {
+        email,
+      },
+    });
+    if (result.rows.length === 0)
       return {
         status: 401,
         message:
           "Invalid credentials, please provide correct credentials or sing up.",
       };
 
-    const isMatch = await compare(password, user.hash!);
+    const user = result.rows[0];
+
+      
+    const isMatch = await compare(password, user.hash!.toString());
 
     if (!isMatch)
       return {
@@ -52,7 +59,7 @@ const login: LoginFn = async ({ email, password }) => {
       status: 200,
       message: "Login succefully.",
       data: user,
-      token
+      token,
     };
   } catch (error) {
     return {
@@ -73,9 +80,14 @@ type SignUpFn = ({
 
 const signup: SignUpFn = async ({ payload, avatar }) => {
   try {
-    const user = await User.findOne({ email: payload.email });
+    const user = await db.execute({
+      sql: "SELECT * FROM users WHERE email = $email",
+      args: {
+        email: payload.email,
+      },
+    });
 
-    if (user)
+    if (user.rows.length > 0)
       return {
         status: 400,
         message: `This email: @${payload.email}; already exists. Please provide other email.`,
@@ -87,24 +99,25 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
       folder: "avatares",
     });
 
-    const newUser = new User({
-      name: payload.name,
-      username: payload.username,
-      bio: payload.bio,
-      date: payload.date,
-      email: payload.email,
-      followed: [],
-      followers: [],
-      posts: [],
-      isVerified: false,
-      hash,
-      avatar: uploadedFile ?? {secureUrl: DEFAULT_AVATAR},
+    const result = await db.execute({
+      sql: "INSERT INTO users (id, name, username, email, hash, bio, date, isVerified, avatar) VALUES ($id, $name, $username, $email, $hash, $bio, $date, $isVerified, $avatar)",
+      args: {
+        id: crypto.randomUUID(),
+        name: payload.name!,
+        username: payload.username!,
+        email: payload.email!,
+        hash,
+        bio: payload.bio!,
+        date: payload.date!,
+        isVerified: false,
+        avatar: uploadedFile.secureUrl,
+      },
     });
 
-    const userSaved = await newUser.save()
-
-
-    const token = signToken({ loggedAt: new Date(Date.now()), user: userSaved })
+    const token = signToken({
+      loggedAt: new Date(Date.now()),
+      user: result.rows[0],
+    });
 
     return {
       status: 200,
@@ -112,6 +125,7 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
       data: token as string,
     };
   } catch (e) {
+    console.error(e);
     return {
       status: 500,
       message: "Error on signun function.",
