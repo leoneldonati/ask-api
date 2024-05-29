@@ -1,5 +1,4 @@
 import type fileUpload from "express-fileupload";
-import User from "../db-models/user";
 import { compare, encrypt } from "../libs/bcrypt";
 import { signToken } from "../libs/jwt";
 import { UserPayload } from "../controllers/auth";
@@ -43,7 +42,6 @@ const login: LoginFn = async ({ email, password }) => {
 
     const user = result.rows[0];
 
-      
     const isMatch = await compare(password, user.hash!.toString());
 
     if (!isMatch)
@@ -95,12 +93,13 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
 
     const hash = await encrypt(payload.password);
 
-    const { ok, uploadedFile } = await uploadFile(avatar!, {
-      folder: "avatares",
-    });
+    // const { uploadedFile } = await uploadFile(avatar!, {
+    //   folder: "avatares",
+    // });
+    console.log(avatar);
 
     const result = await db.execute({
-      sql: "INSERT INTO users (id, name, username, email, hash, bio, date, isVerified, avatar) VALUES ($id, $name, $username, $email, $hash, $bio, $date, $isVerified, $avatar)",
+      sql: "INSERT INTO users (id, name, username, email, hash, bio, date, isVerified, avatar, settings) VALUES ($id, $name, $username, $email, $hash, $bio, $date, $isVerified, $avatar, $settings)",
       args: {
         id: crypto.randomUUID(),
         name: payload.name!,
@@ -110,7 +109,13 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
         bio: payload.bio!,
         date: payload.date!,
         isVerified: false,
-        avatar: uploadedFile.secureUrl,
+        avatar: JSON.stringify({
+          secureUrl: "",
+        }),
+        settings: JSON.stringify({
+          notifications: false,
+          theme: "light",
+        }),
       },
     });
 

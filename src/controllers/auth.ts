@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { login, signup } from "../services/auth";
 import { verifyClientPayload } from "../libs/zod";
 import ms from "ms";
+import { COOKIE_CONFIG, COOKIE_NAME } from "../config";
 
 enum QUERY_TYPE {
   LOGIN = "login",
@@ -19,14 +20,7 @@ export type UserPayload = {
   avatar: any;
 };
 
-const HALF_HOUR = new Date(Date.now() + ms("30m"));
 
-const COOKIE_NAME = "session";
-const COOKIE_CONFIG = {
-  expires: HALF_HOUR,
-  httpOnly: false,
-  secure: false,
-};
 
 async function handleAuth(req: Request, res: Response) {
   const queryType = req.query?.type;

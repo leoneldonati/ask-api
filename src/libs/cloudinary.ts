@@ -17,12 +17,11 @@ cld.config({
 type UploadFileFn = (
   avatar: FileArray,
   { folder }: { folder: string }
-) => Promise<{ ok: boolean; error?: any; uploadedFile: { secureUrl: string; publicId?:string } }>;
+) => Promise<{ error?: any; uploadedFile: { secureUrl: string; publicId?:string } }>;
 
 const uploadFile: UploadFileFn = async (avatar, { folder }) => {
 
   if (!avatar) return {
-    ok: true,
     uploadedFile: {
       secureUrl: DEFAULT_AVATAR
     }
@@ -32,7 +31,6 @@ const uploadFile: UploadFileFn = async (avatar, { folder }) => {
     const uploadResponse = await cld.uploader.upload(filePath.tempFilePath, { folder })
 
     return {
-      ok: true,
       uploadedFile: {
         secureUrl: uploadResponse.secure_url,
         publicId: uploadResponse.public_id
@@ -42,7 +40,6 @@ const uploadFile: UploadFileFn = async (avatar, { folder }) => {
   }
   catch (e) {
     return {
-      ok: false,
       error: e,
       uploadedFile: {
         secureUrl: DEFAULT_AVATAR
