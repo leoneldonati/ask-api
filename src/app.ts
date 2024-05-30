@@ -4,7 +4,7 @@ import cors from 'cors'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import { authRoutes } from './routes/auth'
-import { clientHost, clientHostProduction } from './config'
+import {  clientHostProduction } from './config'
 import { postsRouter } from './routes/posts'
 import { usersRouter } from './routes/users'
 
@@ -24,7 +24,7 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 
 app.use(cors({
-  origin: clientHost ?? clientHostProduction,
+  origin: clientHostProduction,
   credentials: true,
   methods: ['POST', 'GET', 'PUT', 'DELETE'],
 }))

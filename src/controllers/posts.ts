@@ -81,7 +81,6 @@ LIMIT
 
     return res.json(posts);
   } catch (e) {
-    console.log(e);
     return res.status(500).json({
       message: "Error on server: post get function",
       error: e,
@@ -130,7 +129,6 @@ async function addPost(req: ExtendedReq, res: Response) {
             }
           })
             .then(({rowsAffected}) => {
-              console.log(rowsAffected)
             })
             .catch((err) => {})
         })
@@ -149,7 +147,6 @@ async function addPost(req: ExtendedReq, res: Response) {
 
     res.json({});
   } catch (err) {
-    console.error(err);
     res.status(500).json({ err });
   }
 }

@@ -3,7 +3,6 @@ import { v2 as cld } from "cloudinary";
 import { DEFAULT_AVATAR } from "../services/auth";
 import { cldKey, cldName, cldSecret } from "../config";
 import { rm } from "node:fs/promises";
-import { db } from "../db";
 
 cld.config({
   api_key: cldKey,
@@ -29,7 +28,6 @@ const uploadFile: UploadFileFn = async (file, { folder }) => {
     };
   const filePath = Array.isArray(file) ? file[0] : file.files;
 
-  console.log(filePath)
   try {
     const uploadResponse = await cld.uploader.upload(filePath.tempFilePath, {
       folder,
@@ -42,7 +40,6 @@ const uploadFile: UploadFileFn = async (file, { folder }) => {
       },
     };
   } catch (e) {
-    console.error(e);
     return {
       error: e,
       uploadedFile: {

@@ -3,7 +3,6 @@ import ms from 'ms'
 
 dotenv.config()
 
-export const clientHost = process.env.CLIENT_HOST
 export const clientHostProduction = process.env.CLIENT_HOST_PRODUCTION
 export const port = process.env.PORT ?? 8080
 
