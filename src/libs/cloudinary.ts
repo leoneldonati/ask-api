@@ -56,22 +56,19 @@ const uploadMultipleFiles = async (
   { folder = "posts-files" }: { folder: string }
 ) => {
   try {
-    
     if (Array.isArray(files)) {
-      
       const promises = files.map((file) => {
-        return cld.uploader.upload(file.tempFilePath, {folder})
+        return cld.uploader
+          .upload(file.tempFilePath, { folder })
           .then(({ secure_url: secureUrl }) => {
-
             return {
-              secureUrl
-            }
-          })
-      })
+              secureUrl,
+            };
+          });
+      });
 
-      return Promise.all(promises)
+      return Promise.all(promises);
     }
-    
   } catch (e) {
     return {
       secureUrl: "",

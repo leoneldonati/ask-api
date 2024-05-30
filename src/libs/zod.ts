@@ -47,24 +47,26 @@ const verifyClientPayload: VerifyPayloadFn = (payload, { action }) => {
 
 const postPayload = object({
   content: string(),
-})
+});
 
-type VerifyPostFn = (payload: { content: string }) => {ok: boolean; error: any | null;}
+type VerifyPostFn = (payload: { content: string }) => {
+  ok: boolean;
+  error: any | null;
+};
 const verifyPostPayload: VerifyPostFn = (payload) => {
   try {
-    const parsedPayload = postPayload.parse(payload)
+    const parsedPayload = postPayload.parse(payload);
 
     return {
       ok: true,
-      error: null
-    }
-  }
-  catch(err: any){
+      error: null,
+    };
+  } catch (err: any) {
     return {
       ok: false,
-      error: err.issues
-    }
+      error: err.issues,
+    };
   }
-}
+};
 
 export { verifyClientPayload, verifyPostPayload };

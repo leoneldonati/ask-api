@@ -1,28 +1,25 @@
 import type { Request, Response } from "express";
-import User from "../db-models/user";
 import { db } from "../db";
 
-async function getUserById (req: Request, res: Response) {
-  const userId = req.query?.id
+async function getUserById(req: Request, res: Response) {
+  const userId = req.query?.id;
 
-  const correctQuery = userId && userId !== ''
+  const correctQuery = userId && userId !== "";
 
-  if (!correctQuery) return res.status(400).json('This query params is wrong.')
+  if (!correctQuery) return res.status(400).json("This query params is wrong.");
 
   try {
     const user = await db.execute({
-      sql: 'SELECT * FROM users WHERE id = $id',
+      sql: "SELECT * FROM users WHERE id = $id",
       args: {
-        id: userId.toString()
-      }
-    })
+        id: userId.toString(),
+      },
+    });
 
-
-    res.json(user)
-  }
-  catch (err) {
-    res.status(500).json(err)
+    res.json(user);
+  } catch (err) {
+    res.status(500).json(err);
   }
 }
 
-export { getUserById }
+export { getUserById };

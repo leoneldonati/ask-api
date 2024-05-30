@@ -71,7 +71,10 @@ LIMIT
 
     const posts = result.rows.map((row) => ({
       ...row,
-      comments: JSON.parse(row.comments! as string)[0].id === null ? [] : JSON.parse(row.comments! as string),
+      comments:
+        JSON.parse(row.comments! as string)[0].id === null
+          ? []
+          : JSON.parse(row.comments! as string),
       owner: JSON.parse(row.owner! as string),
       like_user_ids:
         JSON.parse(row.like_user_ids! as string)[0] === null
@@ -90,18 +93,21 @@ LIMIT
 
 async function addPost(req: ExtendedReq, res: Response) {
   const postPayload = req.body;
-  const files = req.files
+  const files = req.files;
   const { ok, error } = verifyPostPayload(postPayload);
-  const postId = crypto.randomUUID()
+  const postId = crypto.randomUUID();
 
   if (!ok)
     return res.status(404).json({
       message: "Wrong post format!",
       error,
     });
-  const hasMultipleImages = files !== undefined && files?.files !== undefined && Array.isArray(files) && files.length > 1
+  const hasMultipleImages =
+    files !== undefined &&
+    files?.files !== undefined &&
+    Array.isArray(files) &&
+    files.length > 1;
   try {
-
     // guardar post en bdd
     await db.execute({
       sql: "INSERT INTO posts (id, userid, content) VALUES ($id, $userid, $content)",
@@ -113,37 +119,37 @@ async function addPost(req: ExtendedReq, res: Response) {
     });
 
     if (files && files !== null) {
-
-      const uploadedFile = hasMultipleImages ? await uploadMultipleFiles(files, {folder: 'post-images'}) : (await uploadFile(files!, {folder: 'post-images'})).uploadedFile
+      const uploadedFile = hasMultipleImages
+        ? await uploadMultipleFiles(files, { folder: "post-images" })
+        : (await uploadFile(files!, { folder: "post-images" })).uploadedFile;
 
       if (Array.isArray(uploadedFile) && uploadedFile.length > 1) {
-
-        uploadedFile.forEach(file => {
-          
+        uploadedFile.forEach((file) => {
           db.execute({
-            sql: 'INSERT INTO post_files (id, post_id, secure_url) VALUES ($id, $post_id, $secure_url)',
+            sql: "INSERT INTO post_files (id, post_id, secure_url) VALUES ($id, $post_id, $secure_url)",
             args: {
               id: crypto.randomUUID(),
               post_id: postId,
-              secure_url: file.secureUrl
-            }
+              secure_url: file.secureUrl,
+            },
           })
-            .then(({rowsAffected}) => {
-            })
-            .catch((err) => {})
-        })
+            .then(({ rowsAffected }) => {})
+            .catch((err) => {});
+        });
       }
 
       await db.execute({
-        sql: 'INSERT INTO post_files (id, post_id, secure_url) VALUES ($id, $post_id, $secure_url)',
+        sql: "INSERT INTO post_files (id, post_id, secure_url) VALUES ($id, $post_id, $secure_url)",
         args: {
           id: crypto.randomUUID(),
           post_id: postId,
-          secure_url: uploadedFile !== undefined && !Array.isArray(uploadedFile) &&  uploadedFile.secureUrl
-        }
-      })
+          secure_url:
+            uploadedFile !== undefined &&
+            !Array.isArray(uploadedFile) &&
+            uploadedFile.secureUrl,
+        },
+      });
     }
-    
 
     res.json({});
   } catch (err) {

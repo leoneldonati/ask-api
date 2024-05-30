@@ -93,9 +93,9 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
 
     const hash = await encrypt(payload.password);
 
-     const { uploadedFile } = await uploadFile(avatar!, {
+    const { uploadedFile } = await uploadFile(avatar!, {
       folder: "avatares",
-     });
+    });
 
     const result = await db.execute({
       sql: "INSERT INTO users (id, name, username, email, hash, bio, date, isVerified, avatar, settings) VALUES ($id, $name, $username, $email, $hash, $bio, $date, $isVerified, $avatar, $settings)",

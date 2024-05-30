@@ -3,7 +3,5 @@ import { createClient } from "@libsql/client";
 
 export const db = createClient({
   url: dbUrl!,
-  authToken: dbToken!
-})
-
-
+  authToken: dbToken!,
+});
