@@ -101,7 +101,7 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
       sql: "INSERT INTO users (id, name, username, email, hash, bio, date, isVerified, avatar, settings) VALUES ($id, $name, $username, $email, $hash, $bio, $date, $isVerified, $avatar, $settings)",
       args: {
         id: crypto.randomUUID(),
-        name: payload.name!,
+        name: `${payload.name} ${payload.lastname}`,
         username: payload.username!,
         email: payload.email!,
         hash,

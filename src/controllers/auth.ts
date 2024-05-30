@@ -15,6 +15,7 @@ export type UserPayload = {
   password: string;
   username?: string;
   name?: string;
+  lastname?: string;
   bio?: string;
   date?: Date;
   avatar: any;

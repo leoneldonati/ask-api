@@ -26,10 +26,10 @@ const uploadFile: UploadFileFn = async (file, { folder }) => {
         secureUrl: DEFAULT_AVATAR,
       },
     };
-  const filePath = Array.isArray(file) ? file[0] : file.files;
 
+    const fileObj = Object.values(file)[0] as any
   try {
-    const uploadResponse = await cld.uploader.upload(filePath.tempFilePath, {
+    const uploadResponse = await cld.uploader.upload(fileObj.tempFilePath, {
       folder,
     });
 
