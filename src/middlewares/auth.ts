@@ -6,6 +6,7 @@ import { COOKIE_CONFIG, COOKIE_NAME } from "../config";
 function verifySession(req: ExtendedReq, res: Response, next: NextFunction) {
   const token = req.cookies?.session;
 
+  console.log(token)
   if (!token) {
     res.cookie(COOKIE_NAME, "", { expires: new Date(0) });
     return res.status(401).json("Session expired. 1");

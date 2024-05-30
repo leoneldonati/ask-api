@@ -64,13 +64,14 @@ async function handleAuth(req: Request, res: Response) {
 
       res
         .cookie(COOKIE_NAME, loginResponse.token?.toString(), COOKIE_CONFIG)
-        .json({ message: loginResponse.message, user: loginResponse.data });
+        .json( loginResponse.data );
 
       return;
     }
 
     // SI EL USUARIO QUIERE CREARSE UNA CUENTA
     if (queryType.toString() === QUERY_TYPE.SIGN_UP) {
+
       const signUpResponse = await signup({
         payload: { ...userPayload, date: new Date(userPayload.date!) },
         avatar: req.files,
