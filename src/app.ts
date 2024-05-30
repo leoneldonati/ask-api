@@ -24,7 +24,7 @@ app.use(cookieParser())
 app.use(morgan('dev'))
 
 app.use(cors({
-  origin: [clientHost!, clientHostProduction!],
+  origin: clientHost ?? clientHostProduction,
   credentials: true,
   methods: ['POST', 'GET', 'PUT', 'DELETE'],
 }))
