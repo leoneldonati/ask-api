@@ -21,6 +21,6 @@ export const HALF_HOUR = new Date(Date.now() + ms("30m"));
 export const COOKIE_NAME = "session";
 export const COOKIE_CONFIG = {
   expires: HALF_HOUR,
-  httpOnly: false,
-  secure: false,
+  httpOnly: true,
+  secure: true,
 };
