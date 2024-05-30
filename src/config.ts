@@ -3,7 +3,7 @@ import ms from "ms";
 
 dotenv.config();
 
-export const clientHostProduction = process.env.CLIENT_HOST_PRODUCTION;
+export const clientHostProduction = process.env.CLIENT_HOST_PRODUCTION ?? 'http://localhost:5173';
 export const port = process.env.PORT ?? 8080;
 
 export const dbName = process.env.DB_NAME;
