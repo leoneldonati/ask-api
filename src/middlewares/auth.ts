@@ -7,7 +7,7 @@ function verifySession(req: ExtendedReq, res: Response, next: NextFunction) {
   const token = req.cookies?.session;
 
   if (!token) {
-    res.cookie(COOKIE_NAME, "", { expires: new Date(0) });
+    res.cookie(COOKIE_NAME, "");
     return res.status(401).json("Session expired. 1");
   }
 
