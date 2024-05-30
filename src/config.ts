@@ -20,7 +20,8 @@ export const HALF_HOUR = new Date(Date.now() + ms("30m"));
 
 export const COOKIE_NAME = "session";
 export const COOKIE_CONFIG = {
-  expires: HALF_HOUR,
+  maxAge: ms('30m'),
   httpOnly: true,
   secure: true,
+  sameSite: 'none' as 'none'
 };
