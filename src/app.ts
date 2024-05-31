@@ -22,7 +22,7 @@ app.use(
   cors({
     origin: clientHostProduction,
     credentials: true,
-    methods: ["POST", "GET", "PUT", "DELETE"],
+    
   })
 );
 
