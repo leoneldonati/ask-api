@@ -7,8 +7,7 @@ import { rm } from "node:fs/promises";
 cld.config({
   api_key: cldKey,
   cloud_name: cldName,
-  api_secret: cldSecret,
-  secure: true,
+  api_secret: cldSecret
 });
 
 type UploadFileFn = (
