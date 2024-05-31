@@ -20,9 +20,8 @@ app.use(morgan("dev"));
 
 app.use(
   cors({
-    origin: clientHostProduction,
+    origin: 'https://askweb.netlify.app',
     credentials: true,
-    
   })
 );
 
