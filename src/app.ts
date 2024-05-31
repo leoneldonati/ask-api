@@ -4,7 +4,6 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import { authRoutes } from "./routes/auth";
-import { clientHostProduction } from "./config";
 import { postsRouter } from "./routes/posts";
 import { usersRouter } from "./routes/users";
 
@@ -18,12 +17,7 @@ app.use(cookieParser());
 
 app.use(morgan("dev"));
 
-app.use(
-  cors({
-    origin: 'https://askweb.netlify.app',
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(fileUpload({ useTempFiles: true, tempFileDir: "./temp-files" }));
 
