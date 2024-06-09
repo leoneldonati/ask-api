@@ -4,6 +4,7 @@ import { signToken } from "../libs/jwt";
 import { UserPayload } from "../controllers/auth";
 import { uploadFile } from "../libs/cloudinary";
 import { db } from "../db";
+import { optimizeAvatar } from "../libs/sharp";
 
 export const DEFAULT_AVATAR =
   "https://res.cloudinary.com/dzmuriaby/image/upload/v1701369252/avatares/ucqpxvyuji2z0gqwbwg9.png";
@@ -73,7 +74,7 @@ type SignUpFn = ({
   avatar,
 }: {
   payload: UserPayload;
-  avatar: fileUpload.FileArray | null | undefined;
+  avatar: any;
 }) => Promise<AuthFnResponse>;
 
 const signup: SignUpFn = async ({ payload, avatar }) => {
@@ -92,8 +93,13 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
       };
 
     const hash = await encrypt(payload.password);
+    
+    // optimizar archivo
+    const { ok, filePath } = await optimizeAvatar(avatar.avatar.data, { folder: 'avatares' })
 
-    const { uploadedFile } = await uploadFile(avatar!, {
+    
+    // subir archivo
+    const { uploadedFile } = await uploadFile(filePath!, {
       folder: "avatares",
     });
 

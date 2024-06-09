@@ -11,24 +11,16 @@ cld.config({
 });
 
 type UploadFileFn = (
-  avatar: FileArray,
+  filePath: string,
   { folder }: { folder: string }
 ) => Promise<{
   error?: any;
   uploadedFile: { secureUrl: string; publicId?: string };
 }>;
 
-const uploadFile: UploadFileFn = async (file, { folder }) => {
-  if (!file)
-    return {
-      uploadedFile: {
-        secureUrl: DEFAULT_AVATAR,
-      },
-    };
-
-    const fileObj = Object.values(file)[0] as any
+const uploadFile: UploadFileFn = async (filePath, { folder }) => {
   try {
-    const uploadResponse = await cld.uploader.upload(fileObj.tempFilePath, {
+    const uploadResponse = await cld.uploader.upload(filePath, {
       folder,
     });
 
@@ -46,10 +38,11 @@ const uploadFile: UploadFileFn = async (file, { folder }) => {
       },
     };
   } finally {
-    await rm(`./temp-files`, { recursive: true });
+    await rm(filePath);
   }
 };
 
+// funcion en prueba
 const uploadMultipleFiles = async (
   files: FileArray,
   { folder = "posts-files" }: { folder: string }

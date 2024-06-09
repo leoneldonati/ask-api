@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import { authRoutes } from "./routes/auth";
 import { postsRouter } from "./routes/posts";
 import { usersRouter } from "./routes/users";
+import { clientHostProduction } from "./config";
+import { testRoutes } from "./routes/test";
 
 export const app = express();
 
@@ -17,10 +19,16 @@ app.use(cookieParser());
 
 app.use(morgan("dev"));
 
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? clientHostProduction : 'http://localhost:5173',
+  credentials: true
+}));
 
-app.use(fileUpload({ useTempFiles: true, tempFileDir: "./temp-files" }));
+app.use(fileUpload({  }));
 
 app.use(authRoutes);
 app.use(postsRouter);
 app.use(usersRouter);
+
+// en produccion quitar
+app.use(testRoutes);

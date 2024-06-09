@@ -16,6 +16,8 @@ export const cldName = process.env.CLD_NAME;
 export const cldKey = process.env.CLD_API_KEY;
 export const cldSecret = process.env.CLD_API_SECRET;
 
+export const convertIoApiKey = process.env.CONVERT_API_KEY;
+
 export const HALF_HOUR = new Date(Date.now() + ms("30m"));
 
 export const COOKIE_NAME = "session";
@@ -23,5 +25,4 @@ export const COOKIE_CONFIG = {
   maxAge: ms("30m"),
   httpOnly: true,
   secure: true,
-  sameSite: "none" as "none",
 };
