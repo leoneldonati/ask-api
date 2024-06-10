@@ -2,7 +2,7 @@ import type fileUpload from "express-fileupload";
 import { compare, encrypt } from "../libs/bcrypt";
 import { signToken } from "../libs/jwt";
 import { UserPayload } from "../controllers/auth";
-import { uploadFile } from "../libs/cloudinary";
+import { uploadFile, uploadMultipleFiles } from "../libs/cloudinary";
 import { db } from "../db";
 import { optimizeAvatar } from "../libs/sharp";
 
@@ -95,13 +95,12 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
     const hash = await encrypt(payload.password);
     
     // optimizar archivo
-    const { ok, filePath } = await optimizeAvatar(avatar.avatar.data, { folder: 'avatares' })
+    const { ok: ok_, filesPaths } = await optimizeAvatar(avatar.avatar.data, { folder: 'avatares' })
 
     
-    // subir archivo
-    const { uploadedFile } = await uploadFile(filePath!, {
-      folder: "avatares",
-    });
+    // subir archivo optimizado y archivo original
+
+    const {ok, savedFiles} = await uploadMultipleFiles(filesPaths!, {folder: 'avatares'})
 
     const result = await db.execute({
       sql: "INSERT INTO users (id, name, username, email, hash, bio, date, isVerified, avatar, settings) VALUES ($id, $name, $username, $email, $hash, $bio, $date, $isVerified, $avatar, $settings)",
@@ -115,7 +114,8 @@ const signup: SignUpFn = async ({ payload, avatar }) => {
         date: payload.date!,
         isVerified: false,
         avatar: JSON.stringify({
-          secureUrl: uploadedFile,
+          optimized: savedFiles![0],
+          original: savedFiles![1]
         }),
         settings: JSON.stringify({
           notifications: false,

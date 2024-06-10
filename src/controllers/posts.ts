@@ -2,7 +2,8 @@ import type { Request, Response } from "express";
 import { verifyPostPayload } from "../libs/zod";
 import { db } from "../db";
 import type { ExtendedReq } from "../types";
-import { uploadFile, uploadMultipleFiles } from "../libs/cloudinary";
+import { uploadFile } from "../libs/cloudinary";
+import { optimizePostAsset } from "../libs/sharp";
 
 async function getPosts(req: Request, res: Response) {
   const q = req.query?.q;
@@ -93,7 +94,7 @@ LIMIT
 
 async function addPost(req: ExtendedReq, res: Response) {
   const postPayload = req.body;
-  const files = req.files;
+  const files = req.files as any;
   const { ok, error } = verifyPostPayload(postPayload);
   const postId = crypto.randomUUID();
 
@@ -102,11 +103,6 @@ async function addPost(req: ExtendedReq, res: Response) {
       message: "Wrong post format!",
       error,
     });
-  const hasMultipleImages =
-    files !== undefined &&
-    files?.files !== undefined &&
-    Array.isArray(files) &&
-    files.length > 1;
   try {
     // guardar post en bdd
     await db.execute({
@@ -118,41 +114,22 @@ async function addPost(req: ExtendedReq, res: Response) {
       },
     });
 
-    if (files && files !== null) {
-      const uploadedFile = hasMultipleImages
-        ? await uploadMultipleFiles(files, { folder: "post-images" })
-        : (await uploadFile(files!, { folder: "post-images" })).uploadedFile;
-
-      if (Array.isArray(uploadedFile) && uploadedFile.length > 1) {
-        uploadedFile.forEach((file) => {
-          db.execute({
-            sql: "INSERT INTO post_files (id, post_id, secure_url) VALUES ($id, $post_id, $secure_url)",
-            args: {
-              id: crypto.randomUUID(),
-              post_id: postId,
-              secure_url: file.secureUrl,
-            },
-          })
-            .then(({ rowsAffected }) => {})
-            .catch((err) => {});
-        });
-      }
-
+    if (files?.files) {
+      const {filePath} = await optimizePostAsset(files.files.data, {folder: 'post-images'})
+      const {uploadedFile} = await uploadFile(filePath!, {folder: 'post-images'})
       await db.execute({
         sql: "INSERT INTO post_files (id, post_id, secure_url) VALUES ($id, $post_id, $secure_url)",
         args: {
           id: crypto.randomUUID(),
           post_id: postId,
-          secure_url:
-            uploadedFile !== undefined &&
-            !Array.isArray(uploadedFile) &&
-            uploadedFile.secureUrl,
+          secure_url: uploadedFile.secureUrl
         },
       });
     }
 
     res.json({});
   } catch (err) {
+    console.error(err, 1)
     res.status(500).json({ err });
   }
 }

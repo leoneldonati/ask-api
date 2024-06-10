@@ -3,10 +3,10 @@ import sharp from "sharp";
 async function optimizeAvatar(
   file: Buffer,
   { folder }: { folder: string }
-): Promise<{ ok: boolean; filePath?: string; error?: any }> {
-  const filePath = `./temp-files/optimized-${folder}-${crypto.randomUUID()}.avif`;
+): Promise<{ ok: boolean; filesPaths?: string[]; error?: any }> {
+  const optimizedFilePath = `./temp-files/optimized/${folder}-${crypto.randomUUID()}.avif`;
+  const originalFilePath = `./temp-files/original/${folder}-${crypto.randomUUID()}.avif`
   try {
-    if (folder === "avatar") {
       await sharp(file)
         .resize({
           width: 55,
@@ -15,26 +15,21 @@ async function optimizeAvatar(
           position: "center",
         })
         .toFormat("avif")
-        .toFile(filePath);
+        .toFile(optimizedFilePath);
+
+        await sharp(file)
+          .resize({
+            fit: 'cover',
+            position: 'center'
+          })
+          .toFormat('avif')
+          .toFile(originalFilePath)
 
       return {
         ok: true,
-        filePath,
+        filesPaths: [optimizedFilePath, originalFilePath],
       };
-    }
-    await sharp(file)
-      .resize({
-        width: 55,
-        height: 55,
-        fit: "cover",
-        position: "center",
-      })
-      .toFormat("avif")
-      .toFile(filePath);
-    return {
-      ok: true,
-      filePath,
-    };
+
   } catch (error) {
     return {
       ok: false,
@@ -43,4 +38,28 @@ async function optimizeAvatar(
   }
 }
 
-export { optimizeAvatar };
+async function optimizePostAsset(file: Buffer, { folder }: { folder: string }) {
+  const filePath = `./temp-files/original/${folder}-${crypto.randomUUID()}`
+  try {
+    await sharp(file)
+      .resize({
+        fit: 'cover',
+        position: 'center'
+      })
+      .toFormat('avif')
+      .toFile(filePath)
+
+      return {
+        ok: true,
+        filePath
+      }
+  }
+  catch (err) {
+    return {
+      ok: false,
+      error: err
+    }
+  }
+}
+
+export { optimizeAvatar, optimizePostAsset };

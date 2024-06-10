@@ -9,14 +9,14 @@ async function getUserById(req: Request, res: Response) {
   if (!correctQuery) return res.status(400).json("This query params is wrong.");
 
   try {
-    const user = await db.execute({
+    const result = await db.execute({
       sql: "SELECT * FROM users WHERE id = $id",
       args: {
         id: userId.toString(),
       },
     });
 
-    res.json(user);
+    res.json(result.rows[0]);
   } catch (err) {
     res.status(500).json(err);
   }

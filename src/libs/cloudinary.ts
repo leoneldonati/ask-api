@@ -7,7 +7,7 @@ import { rm } from "node:fs/promises";
 cld.config({
   api_key: cldKey,
   cloud_name: cldName,
-  api_secret: cldSecret
+  api_secret: cldSecret,
 });
 
 type UploadFileFn = (
@@ -42,31 +42,25 @@ const uploadFile: UploadFileFn = async (filePath, { folder }) => {
   }
 };
 
-// funcion en prueba
 const uploadMultipleFiles = async (
-  files: FileArray,
-  { folder = "posts-files" }: { folder: string }
+  filesPaths: string[],
+  { folder }: { folder: string }
 ) => {
-  try {
-    if (Array.isArray(files)) {
-      const promises = files.map((file) => {
-        return cld.uploader
-          .upload(file.tempFilePath, { folder })
-          .then(({ secure_url: secureUrl }) => {
-            return {
-              secureUrl,
-            };
-          });
-      });
 
-      return Promise.all(promises);
-    }
-  } catch (e) {
+  try {
+    const promises = filesPaths.map(filePath => uploadFile(filePath, { folder }).then(({ uploadedFile }) => ({ secureUrl: uploadedFile.secureUrl, publicId: uploadedFile.publicId })))
+
+    const resolved = await Promise.all(promises)
     return {
-      secureUrl: "",
-    };
-  } finally {
-    await rm(`./temp-files`, { recursive: true });
+      ok: true,
+      savedFiles: resolved
+    }
+  }
+  catch (error) {
+    return {
+      ok: false,
+      error
+    }
   }
 };
 
